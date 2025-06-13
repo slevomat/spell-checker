@@ -5,6 +5,7 @@ namespace SpellChecker;
 use Dogma\Application\Colors as C;
 use Dogma\Application\Configurator;
 use Dogma\Application\Console;
+use ReflectionClass;
 use SpellChecker\Dictionary\DictionaryCollection;
 use SpellChecker\Dictionary\DictionaryResolver;
 use SpellChecker\Heuristic\AddressDetector;
@@ -94,6 +95,26 @@ class SpellCheckerApplication
                 new GarbageDetector(),
                 new Base64DataDetector(),
             ];
+
+			foreach ($config->heuristics as $heuristic) {
+				if (!class_exists($heuristic)) {
+					$this->console->writeLn(C::red(sprintf('Custom heuristic class "%s" not found.', $heuristic)));
+					exit(1);
+				}
+
+				$heuristicReflection = new ReflectionClass($heuristic);
+				$heuristicConstructor = $heuristicReflection->getConstructor();
+				if ($heuristicConstructor === null || count($heuristicConstructor->getParameters()) === 0) {
+					$heuristics[] = new $heuristic();
+				} else {
+					$parameters = $heuristicConstructor->getParameters();
+					if (count($parameters) !== 1 || $parameters[0]->getType()->getName() !== DictionaryCollection::class) {
+						$this->console->writeLn(C::red(sprintf('Custom heuristic class %s may have only one constructor parameter of type %s.', $heuristic, DictionaryCollection::class)));
+						exit(1);
+					}
+					$heuristics[] = new $heuristic($dictionaries);
+				}
+			}
 
             // run check
             $spellChecker = new SpellChecker(
