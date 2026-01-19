@@ -96,7 +96,7 @@ class SpellCheckerApplication
                 new Base64DataDetector(),
             ];
 
-			foreach ($config->heuristics as $heuristic) {
+			foreach ($config->heuristics ?? [] as $heuristic) {
 				if (!class_exists($heuristic)) {
 					$this->console->writeLn(C::red(sprintf('Custom heuristic class "%s" not found.', $heuristic)));
 					exit(1);

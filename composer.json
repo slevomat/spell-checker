@@ -15,7 +15,7 @@
         "nette/neon": "~2.4|~3.0",
         "symfony/finder": "~4.0|~5.0|~6.0|~7.0|~8.0",
         "tracy/tracy": "~2.4",
-        "dogma/dogma": "dev-slevomat-master"
+        "dogma/dogma": "dev-slevomat-master#866f343 as 0.2.99"
     },
     "require-dev": {
         "dogma/dogma-dev": "dev-master",
